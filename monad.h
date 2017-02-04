@@ -26,7 +26,7 @@ struct Functor<std::optional> {
   }
 };
 
-template<template<typename...> typename F>
+template<template<typename> typename F>
 struct Applicative {
   template<typename A>
   static auto pure(A a) -> F<A>;
@@ -35,12 +35,12 @@ struct Applicative {
   static auto compose(F<B (*)(A)>, F<A>) -> F<B>;
 };
 
-template<template<typename...> typename F, typename A>
+template<template<typename> typename F, typename A>
 inline auto pure(A a) -> F<A> {
   return Applicative<F>::pure(a);
 }
 
-template<template<typename...> typename F, typename A, typename B>
+template<template<typename> typename F, typename A, typename B>
 inline auto operator%(F<B (*)(A)> func, F<A> something) -> F<B> {
   return Applicative<F>::compose(func, something);
 }
@@ -62,7 +62,7 @@ struct Applicative<std::optional> {
   }
 };
 
-template<template<typename...> typename M>
+template<template<typename> typename M>
 struct Monad {
   template<typename A>
   static auto return_(A) -> M<A>;
@@ -89,15 +89,9 @@ struct Monad<std::optional> {
 };
 
 // >>= is left associative, so use |
-template<template<typename...> typename M, typename A, typename B>
+template<template<typename> typename M, typename A, typename B>
 inline auto operator|(M<A> x, M<B> (*func)(A)) -> M<B> {
   return Monad<M>::bind(x, func);
-}
-
-// FIXME: Don't know why the function template above does not work
-template<typename A, typename B>
-inline auto operator|(std::optional<A> x, std::optional<B> (*func)(A)) -> std::optional<B> {
-  return Monad<std::optional>::bind(x, func);
 }
 
 template<typename T>
