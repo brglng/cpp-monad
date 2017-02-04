@@ -1,5 +1,5 @@
-#ifndef __AUDFPRINT_OPTIONAL_H__
-#define __AUDFPRINT_OPTIONAL_H__
+#ifndef __STD_OPTIONAL_H__
+#define __STD_OPTIONAL_H__
 
 #include <type_traits>
 #include <cstdint>
@@ -8,7 +8,7 @@
 
 #include <iostream>
 
-#define REQUIRES(...) typename std::enable_if<__VA_ARGS__, bool>::type = false
+#define STD_OPTIONAL_REQUIRES(...) typename std::enable_if<__VA_ARGS__, bool>::type = false
 
 namespace std {
 
@@ -75,7 +75,7 @@ public:
   }
 
   template<typename U,
-           REQUIRES(std::is_constructible<T, const U&>::value &&
+           STD_OPTIONAL_REQUIRES(std::is_constructible<T, const U&>::value &&
                               !std::is_constructible<T, optional<U>&>::value &&
                               !std::is_constructible<T, const optional<U>&>::value &&
                               !std::is_constructible<T, optional<U>&&>::value &&
@@ -93,7 +93,7 @@ public:
     }
   }
 
-  template<typename U, REQUIRES(std::is_convertible<const U&, T>::value)>
+  template<typename U, STD_OPTIONAL_REQUIRES(std::is_convertible<const U&, T>::value)>
   explicit OptionalBase(const optional<U>& other) {
     if (other.mHasValue) {
       ::new (&mValue) U(*other);
@@ -104,7 +104,7 @@ public:
   }
 
   template<typename U,
-           REQUIRES(std::is_constructible<T, const U&>::value &&
+           STD_OPTIONAL_REQUIRES(std::is_constructible<T, const U&>::value &&
                               !std::is_constructible<T, optional<U>&>::value &&
                               !std::is_constructible<T, const optional<U>&>::value &&
                               !std::is_constructible<T, optional<U>&&>::value &&
@@ -122,7 +122,7 @@ public:
     }
   }
 
-  template<typename U, REQUIRES(std::is_convertible<const U&&, T>::value)>
+  template<typename U, STD_OPTIONAL_REQUIRES(std::is_convertible<const U&&, T>::value)>
   explicit OptionalBase(const optional<U>&& other) {
     if (other.mHasValue) {
       ::new (&mValue) U(std::move(*other.valuePtr()));
@@ -132,20 +132,20 @@ public:
     }
   }
 
-  template<typename U = T, typename... Args, REQUIRES(std::is_constructible<U, Args...>::value)>
+  template<typename U = T, typename... Args, STD_OPTIONAL_REQUIRES(std::is_constructible<U, Args...>::value)>
   explicit OptionalBase(in_place_t, Args&&... args) {
     ::new (&mValue) T(std::forward<Args>(args)...);
     mHasValue = true;
   }
 
-  template<typename U, typename... Args, REQUIRES(std::is_constructible<T, std::initializer_list<U>&, Args&&...>::value)>
+  template<typename U, typename... Args, STD_OPTIONAL_REQUIRES(std::is_constructible<T, std::initializer_list<U>&, Args&&...>::value)>
   explicit OptionalBase(in_place_t, std::initializer_list<U> ilist, Args&&... args) {
     ::new (&mValue) U(ilist, std::forward<Args>(args)...);
     mHasValue = true;
   }
 
   template<typename U = T,
-           REQUIRES(
+           STD_OPTIONAL_REQUIRES(
              std::is_constructible<T, U&&>::value &&
              !std::is_same<typename std::decay<U>::type, in_place_t>::value &&
              !std::is_same<typename std::decay<U>::type, optional<T>>::value)>
@@ -155,7 +155,7 @@ public:
   }
 
   template<typename U = T,
-           REQUIRES(!std::is_constructible<U&&, T>::value)>
+           STD_OPTIONAL_REQUIRES(!std::is_constructible<U&&, T>::value)>
   explicit OptionalBase(const U&& value) {
     ::new (&mValue) U(std::move(value));
     mHasValue = true;
@@ -213,7 +213,7 @@ public:
   }
 
   template<typename U = T,
-           REQUIRES(!std::is_same<typename std::decay<U>::type,
+           STD_OPTIONAL_REQUIRES(!std::is_same<typename std::decay<U>::type,
                                             optional<T>>::value &&
                               std::is_constructible<T, U>::value &&
                               std::is_assignable<T&, U>::value &&
@@ -231,7 +231,7 @@ public:
   }
 
   template<typename U,
-           REQUIRES(
+           STD_OPTIONAL_REQUIRES(
              !std::is_constructible<T, optional<U>&>::value &&
              !std::is_constructible<T, const optional<U>&>::value &&
              !std::is_constructible<T, optional<U>&&>::value &&
@@ -267,7 +267,7 @@ public:
   }
 
   template<typename U,
-           REQUIRES(
+           STD_OPTIONAL_REQUIRES(
              !std::is_constructible<T, optional<U>&>::value &&
              !std::is_constructible<T, const optional<U>&>::value &&
              !std::is_constructible<T, optional<U>&&>::value &&
@@ -343,20 +343,20 @@ public:
     return std::move(*valuePtr());
   }
 
-  template<typename U, REQUIRES(std::is_convertible<U&&, T>::value &&
+  template<typename U, STD_OPTIONAL_REQUIRES(std::is_convertible<U&&, T>::value &&
                                           std::is_copy_constructible<T>::value)>
   T value_or(U&& defaultValue) const & {
     return bool(*this) ? **this : static_cast<T>(std::forward<U>(defaultValue));
   }
 
-  template<typename U, REQUIRES(std::is_convertible<U&&, T>::value &&
+  template<typename U, STD_OPTIONAL_REQUIRES(std::is_convertible<U&&, T>::value &&
                                           std::is_move_constructible<T>::value)>
   T value_or(U&& defaultValue) && {
     return bool(*this) ? std::move(**this) : static_cast<T>(std::forward<U>(defaultValue));
   }
 
   // C++11 does not have std::is_swappable
-  // template<typename U = T, REQUIRES(std::is_convertible<U&, T&>::value &&
+  // template<typename U = T, STD_OPTIONAL_REQUIRES(std::is_convertible<U&, T&>::value &&
   //                                             std::is_swappable<U>::value)
   void swap(OptionalBase& other) // C++11 does not have std::is_nothrow_swappable
                                  // noexcept(std::is_nothrow_move_constructible<T>::value &&
@@ -379,7 +379,7 @@ public:
     mHasValue = false;
   }
 
-  template<typename... Args, REQUIRES(std::is_constructible<T, Args&&...>::value)>
+  template<typename... Args, STD_OPTIONAL_REQUIRES(std::is_constructible<T, Args&&...>::value)>
   void emplace(Args&&... args) {
     reset();
     new (&mValue) T(std::forward<Args>(args)...);
@@ -387,7 +387,7 @@ public:
   }
 
   template<typename U, typename... Args,
-           REQUIRES(
+           STD_OPTIONAL_REQUIRES(
              std::is_constructible<
                T,
                std::initializer_list<U>&, Args&&...>::value)>
@@ -616,24 +616,22 @@ constexpr optional<T> make_optional(std::initializer_list<U> il, Args&&... args)
   return optional<T>(in_place, il, std::forward<Args>(args)...);
 }
 
-} // namespace std
-
-namespace std {
-  template<typename T, REQUIRES(std::is_move_assignable<T>::value)>
-  inline void swap(std::optional<T>& lhs, std::optional<T>& rhs) noexcept(noexcept(lhs.swap(rhs))) {
-    return lhs.swap(rhs);
-  }
-
-  template<typename T>
-  struct hash<std::optional<T>> {
-    size_t operator()(const std::optional<T>& opt) {
-      if (opt) {
-        return hash<T>()(opt.value());
-      } else {
-        return hash<int>()(0);
-      }
-    }
-  };
+template<typename T, STD_OPTIONAL_REQUIRES(std::is_move_assignable<T>::value)>
+inline void swap(std::optional<T>& lhs, std::optional<T>& rhs) noexcept(noexcept(lhs.swap(rhs))) {
+  return lhs.swap(rhs);
 }
 
-#endif /* end of include guard: __AUDFPRINT_OPTIONAL_H__ */
+template<typename T>
+struct hash<std::optional<T>> {
+  size_t operator()(const std::optional<T>& opt) {
+    if (opt) {
+      return hash<T>()(opt.value());
+    } else {
+      return hash<int>()(0);
+    }
+  }
+};
+
+} // namespace std
+
+#endif /* end of include guard: __STD_OPTIONAL_H__ */
