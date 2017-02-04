@@ -101,9 +101,9 @@ inline auto operator|(std::optional<A> x, std::optional<B> (*func)(A)) -> std::o
 }
 
 template<typename T>
-using maybe = std::optional<T>;
+using Maybe = std::optional<T>;
 
-auto nothing = std::nullopt;
+auto Nothing = std::nullopt;
 
 template<typename T>
 std::ostream& operator<<(std::ostream& stream, const std::optional<T>& o) {
