@@ -88,7 +88,7 @@ struct Monad<std::optional> {
   }
 };
 
-// >>= is left associated, so use |
+// >>= is left associative, so use |
 template<template<typename...> typename M, typename A, typename B>
 inline auto operator|(M<A> x, M<B> (*func)(A)) -> M<B> {
   return Monad<M>::bind(x, func);
