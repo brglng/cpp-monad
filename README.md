@@ -1,3 +1,3 @@
 # cpp-monad
-Naive implementation of Monad in C++, also containing an almost complete
-implementation of `std::optional` for C++11.
+Naive implementation of Monad in C++. An almost complete implementation of
+`std::optional` for C++11 is also included.
